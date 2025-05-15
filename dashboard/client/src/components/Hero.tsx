@@ -62,7 +62,7 @@ export function Hero() {
               variant="custom"
               className="bg-primary hover:bg-secondary text-black font-semibold rounded-full px-10 py-3 transition-colors"
             >
-              <a href="#">ENROLL NOW</a>
+              <a href="#signup">ENROLL NOW</a>
             </Button>
             
             <Button

@@ -62,7 +62,7 @@ export function Header() {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-white hover:text-primary transition-colors">
+                  <a href="#signup" className="text-white hover:text-primary transition-colors">
                     Connect
                   </a>
                 </li>
@@ -119,7 +119,7 @@ export function Header() {
               </a>
             </li>
             <li className="py-4 border-b border-gray-800">
-              <a href="#" className="text-white text-xl font-medium hover:text-primary transition-colors flex items-center justify-center">
+              <a href="#signup" className="text-white text-xl font-medium hover:text-primary transition-colors flex items-center justify-center">
                 Connect
               </a>
             </li>
