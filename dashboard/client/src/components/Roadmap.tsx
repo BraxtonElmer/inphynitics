@@ -22,7 +22,14 @@ export function Roadmap() {
             <h3 className="text-6xl font-bold mb-6">
               INPHY<span className="text-primary">NITICS</span>
             </h3>
-            <div className="border-b-4 border-dashed border-primary w-32"></div>
+            <div className="flex space-x-1 w-full max-w-[400px]">
+              {[...Array(12)].map((_, i) => (
+                <div 
+                  key={i}
+                  className={`h-1 flex-1 border-b-4 border-dashed ${i % 2 === 0 ? 'border-primary' : 'border-white'}`}
+                ></div>
+              ))}
+            </div>
           </motion.div>
         </div>
 
