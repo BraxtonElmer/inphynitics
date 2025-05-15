@@ -13,7 +13,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Valid email is required' });
       }
 
-      // Log the registration (in a real app, this would store to a database)
+      // Log the registration
       console.log(`New registration: ${email}`);
       
       // Return success response

@@ -126,24 +126,26 @@ export function OrbitalText() {
   const sectionHeight = isMobile ? "h-[550px]" : "h-[800px]";
   
   // Calculate ring sizes for responsiveness - now even wider for bigger visual impact
-  const ringWidths = {
-    // Rings behind the planet
-    behind1: isMobile ? "w-[600px]" : "w-[1200px]",
-    behind2: isMobile ? "w-[550px]" : "w-[1100px]",
-    // Rings in front of the planet
-    front1: isMobile ? "w-[650px]" : "w-[1300px]",
-    front2: isMobile ? "w-[700px]" : "w-[1400px]",
-    front3: isMobile ? "w-[750px]" : "w-[1500px]",
-  };
-  
-  // Calculate ring heights (flattened for perspective)
-  const ringHeights = {
-    behind1: isMobile ? "h-[150px]" : "h-[300px]",
-    behind2: isMobile ? "h-[140px]" : "h-[280px]",
-    front1: isMobile ? "h-[160px]" : "h-[320px]",
-    front2: isMobile ? "h-[170px]" : "h-[340px]",
-    front3: isMobile ? "h-[180px]" : "h-[360px]",
-  };
+const ringWidths = {
+  // Rings behind the planet - match these exactly with front rings
+  behind1: isMobile ? "w-[650px]" : "w-[1300px]",
+  behind2: isMobile ? "w-[700px]" : "w-[1400px]",
+  behind3: isMobile ? "w-[750px]" : "w-[1500px]",
+  // Rings in front of the planet - same sizes as corresponding behind rings
+  front1: isMobile ? "w-[650px]" : "w-[1300px]",
+  front2: isMobile ? "w-[700px]" : "w-[1400px]",
+  front3: isMobile ? "w-[750px]" : "w-[1500px]",
+};
+
+// Calculate ring heights (flattened for perspective)
+const ringHeights = {
+  behind1: isMobile ? "h-[160px]" : "h-[320px]",
+  behind2: isMobile ? "h-[170px]" : "h-[340px]",
+  behind3: isMobile ? "h-[180px]" : "h-[360px]",
+  front1: isMobile ? "h-[160px]" : "h-[320px]",
+  front2: isMobile ? "h-[170px]" : "h-[340px]",
+  front3: isMobile ? "h-[180px]" : "h-[360px]",
+};
   
   return (
     <SectionWrapper id="orbit" className={`${sectionHeight} relative py-8 mb-20 overflow-hidden bg-black`}>
@@ -152,28 +154,38 @@ export function OrbitalText() {
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 to-blue-800/5 blur-[100px] z-0"></div>
         
         {/* Rings that go BEHIND the planet */}
-        <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 5 }}>
-          {/* Use clip-path to show only the BOTTOM half of these rings */}
-          <div className={`absolute ${ringWidths.behind1} ${ringHeights.behind1} rounded-full`} 
-              style={{ 
-                transform: 'rotateX(75deg) rotateZ(-6deg)',
-                border: '3px solid rgba(180, 120, 255, 0.7)',
-                borderRadius: '50%',
-                boxShadow: '0 0 20px rgba(180, 120, 255, 0.5)',
-                clipPath: 'polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%)', /* Only show bottom half */
-              }}>
-          </div>
-          
-          <div className={`absolute ${ringWidths.behind2} ${ringHeights.behind2} rounded-full`} 
-              style={{ 
-                transform: 'rotateX(75deg) rotateZ(-6deg)',
-                border: '2px solid rgba(150, 160, 255, 0.8)',
-                borderRadius: '50%',
-                boxShadow: '0 0 15px rgba(150, 160, 255, 0.6)',
-                clipPath: 'polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%)', /* Only show bottom half */
-              }}>
-          </div>
-        </div>
+<div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 5 }}>
+  {/* Use clip-path to show only the BOTTOM half of these rings */}
+  <div className={`absolute ${ringWidths.behind1} ${ringHeights.behind1} rounded-full`} 
+      style={{ 
+        transform: 'rotateX(75deg) rotateZ(-6deg)',
+        border: '3px solid rgba(180, 120, 255, 0.7)',
+        borderRadius: '50%',
+        boxShadow: '0 0 20px rgba(180, 120, 255, 0.5)',
+        clipPath: 'polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%)',
+      }}>
+  </div>
+  
+  <div className={`absolute ${ringWidths.behind2} ${ringHeights.behind2} rounded-full`} 
+      style={{ 
+        transform: 'rotateX(75deg) rotateZ(-6deg)',
+        border: '2px solid rgba(150, 160, 255, 0.8)',
+        borderRadius: '50%',
+        boxShadow: '0 0 15px rgba(150, 160, 255, 0.6)',
+        clipPath: 'polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%)',
+      }}>
+  </div>
+  
+  <div className={`absolute ${ringWidths.behind3} ${ringHeights.behind3} rounded-full`} 
+      style={{ 
+        transform: 'rotateX(75deg) rotateZ(-6deg)',
+        border: '3px solid rgba(180, 120, 255, 0.6)',
+        borderRadius: '50%',
+        boxShadow: '0 0 30px rgba(180, 120, 255, 0.5)',
+        clipPath: 'polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%)',
+      }}>
+  </div>
+</div>
         
         {/* Orbiting words - positioned separately so they can be layered properly */}
         <div className="absolute inset-0">
@@ -210,38 +222,38 @@ export function OrbitalText() {
         </div>
         
         {/* Rings that go IN FRONT of the planet */}
-        <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 30 }}>
-          {/* Use clip-path to show only the TOP half of these rings */}
-          <div className={`absolute ${ringWidths.front1} ${ringHeights.front1} rounded-full`} 
-              style={{ 
-                transform: 'rotateX(75deg) rotateZ(-6deg)',
-                border: '3px solid rgba(180, 120, 255, 0.8)',
-                borderRadius: '50%',
-                boxShadow: '0 0 25px rgba(180, 120, 255, 0.6)',
-                clipPath: 'polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%)', /* Only show top half */
-              }}>
-          </div>
-          
-          <div className={`absolute ${ringWidths.front2} ${ringHeights.front2} rounded-full`} 
-              style={{ 
-                transform: 'rotateX(75deg) rotateZ(-6deg)',
-                border: '2px solid rgba(150, 160, 255, 0.7)',
-                borderRadius: '50%',
-                boxShadow: '0 0 20px rgba(150, 160, 255, 0.5)',
-                clipPath: 'polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%)', /* Only show top half */
-              }}>
-          </div>
-          
-          <div className={`absolute ${ringWidths.front3} ${ringHeights.front3} rounded-full`} 
-              style={{ 
-                transform: 'rotateX(75deg) rotateZ(-6deg)',
-                border: '3px solid rgba(180, 120, 255, 0.6)',
-                borderRadius: '50%',
-                boxShadow: '0 0 30px rgba(180, 120, 255, 0.5)',
-                clipPath: 'polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%)', /* Only show top half */
-              }}>
-          </div>
-        </div>
+<div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 30 }}>
+  {/* Use clip-path to show only the TOP half of these rings */}
+  <div className={`absolute ${ringWidths.front1} ${ringHeights.front1} rounded-full`} 
+      style={{ 
+        transform: 'rotateX(75deg) rotateZ(-6deg)',
+        border: '3px solid rgba(180, 120, 255, 0.7)',
+        borderRadius: '50%',
+        boxShadow: '0 0 20px rgba(180, 120, 255, 0.5)',
+        clipPath: 'polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%)',
+      }}>
+  </div>
+  
+  <div className={`absolute ${ringWidths.front2} ${ringHeights.front2} rounded-full`} 
+      style={{ 
+        transform: 'rotateX(75deg) rotateZ(-6deg)',
+        border: '2px solid rgba(150, 160, 255, 0.8)',
+        borderRadius: '50%',
+        boxShadow: '0 0 15px rgba(150, 160, 255, 0.6)',
+        clipPath: 'polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%)',
+      }}>
+  </div>
+  
+  <div className={`absolute ${ringWidths.front3} ${ringHeights.front3} rounded-full`} 
+      style={{ 
+        transform: 'rotateX(75deg) rotateZ(-6deg)',
+        border: '3px solid rgba(180, 120, 255, 0.6)',
+        borderRadius: '50%',
+        boxShadow: '0 0 30px rgba(180, 120, 255, 0.5)',
+        clipPath: 'polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%)',
+      }}>
+  </div>
+</div>
       </div>
     </SectionWrapper>
   );

@@ -67,7 +67,7 @@ export function StudentExperience() {
           ].map((title, index) => (
             <motion.div
               key={title}
-              className="bg-white rounded-xl p-6 shadow-md"
+              className="bg-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center text-center"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
