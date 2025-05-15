@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 45 90% 55%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 45 100% 47%;
+  --secondary-foreground: 0 0% 0%;
+  --accent: 12 6.5% 15.1%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  --radius: 0.5rem;
+  
+  /* Additional custom colors */
+  --dark: 0 0% 0%;
+  --darkGray: 0 0% 7%;
+  --lightGray: 0 0% 16%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground overflow-x-hidden;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior-y: none;
+  }
+  
+  /* Smooth scrolling with momentum */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    :where(html) {
+      scroll-behavior: smooth;
+    }
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #111;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #444;
+  }
+}
+
+@layer components {
+  .bg-dark {
+    background-color: #000000;
+  }
+  
+  .bg-darkGray {
+    background-color: #111111;
+  }
+  
+  .bg-lightGray {
+    background-color: #2a2a2a;
+  }
+  
+  .text-primary {
+    color: #f8c537;
+  }
+  
+  .bg-primary {
+    background-color: #f8c537;
+  }
+  
+  .border-primary {
+    border-color: #f8c537;
+  }
+  
+  .bg-secondary {
+    background-color: #ffd700;
+  }
+  
+  .hover\:bg-secondary:hover {
+    background-color: #ffd700;
+  }
+  
+  .hover\:text-primary:hover {
+    color: #f8c537;
+  }
+  
+  .hover\:border-primary:hover {
+    border-color: #f8c537;
+  }
+  
+  /* Fade in animation for sections */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced momentum scrolling for all devices */
+@supports (-webkit-touch-callout: none) {
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Improved momentum scrolling for desktop */
+html, body {
+  scroll-snap-type: y proximity;
+  overscroll-behavior-y: none;
+}
+
+/* Optional: smooth transition when scrolling between sections */
+section {
+  scroll-snap-align: start;
+  scroll-margin-top: 2rem;
+  scroll-snap-stop: normal;
+}
