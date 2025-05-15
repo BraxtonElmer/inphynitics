@@ -1,169 +1,204 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { SectionWrapper } from "./ui/section-wrapper";
-import gsap from "gsap";
-import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import planetImage from "../assets/planet.png";
 
-// Register plugins
-gsap.registerPlugin(MotionPathPlugin);
-
-type OrbitalWord = {
-  text: string;
-  angle: number;
-  orbit: number;
-  emphasis?: boolean;
-}
-
-// Match the exact words from the mockup, marking emphasis for larger words
-const orbitalWords: OrbitalWord[] = [
-  { text: "Physics", angle: 0, orbit: 0, emphasis: true },
-  { text: "Engage", angle: 30, orbit: 1, emphasis: true },
-  { text: "Entertain", angle: 60, orbit: 2, emphasis: true },
-  { text: "Educate", angle: 90, orbit: 0, emphasis: true },
-  { text: "Discover", angle: 120, orbit: 1, emphasis: true },
-  { text: "Learn", angle: 150, orbit: 2, emphasis: true },
-  { text: "Explore", angle: 180, orbit: 0, emphasis: true },
-  { text: "Question", angle: 210, orbit: 1 },
-  { text: "Imagine", angle: 240, orbit: 2 },
-  { text: "Fun", angle: 270, orbit: 0 },
-  { text: "easy", angle: 285, orbit: 1 },
-  { text: "Inspire", angle: 300, orbit: 1 },
-  { text: "Create", angle: 330, orbit: 2 },
+// Define the words to orbit around the planet
+const orbitalWords = [
+  "Physics", "Engage", "Entertain", "Educate", "Discover", 
+  "Learn", "Explore", "Question", "Imagine", "Fun", 
+  "Easy", "Inspire", "Create"
 ];
 
 export function OrbitalText() {
+  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const wordsRef = useRef<(HTMLSpanElement | null)[]>([]);
-  const planetRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
+  const animationRef = useRef<number | null>(null);
   
+  // Handle screen size detection
   useEffect(() => {
-    if (!containerRef.current || !planetRef.current || !svgRef.current) return;
-    
-    const container = containerRef.current;
-    const planet = planetRef.current;
-    const svg = svgRef.current;
-    
-    // Define orbits with different radii and speeds to match the mockup
-    const orbits = [
-      { radius: 240, speed: 0.7, color: "rgba(120, 100, 200, 0.3)" }, // Inner orbit (purple tint)
-      { radius: 300, speed: 0.5, color: "rgba(100, 130, 220, 0.2)" }, // Middle orbit (blue tint)
-      { radius: 360, speed: 0.3, color: "rgba(70, 160, 220, 0.1)" },  // Outer orbit (light blue tint)
-    ];
-    
-    // Get dimensions
-    const containerRect = container.getBoundingClientRect();
-    const planetRect = planet.getBoundingClientRect();
-    
-    // Calculate planet position in relation to the container
-    const planetCenterX = planetRect.left - containerRect.left + planetRect.width / 2;
-    const planetCenterY = planetRect.top - containerRect.top + planetRect.height / 2;
-    
-    // Create orbital paths in SVG - these are the actual orbital rings
-    const orbitalPaths: SVGPathElement[] = [];
-    
-    orbits.forEach((orbit, i) => {
-      const orbitalPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      orbitalPath.setAttribute('id', `orbit-path-${i}`);
-      orbitalPath.setAttribute('d', `M ${planetCenterX + orbit.radius} ${planetCenterY} 
-                                     a ${orbit.radius} ${orbit.radius} 0 1 0 -${orbit.radius * 2} 0 
-                                     a ${orbit.radius} ${orbit.radius} 0 1 0 ${orbit.radius * 2} 0`);
-      orbitalPath.setAttribute('fill', 'none');
-      orbitalPath.setAttribute('stroke', orbit.color);
-      orbitalPath.setAttribute('stroke-width', '1.5');
-      orbitalPath.setAttribute('stroke-dasharray', '2,4');
-      
-      svg.appendChild(orbitalPath);
-      orbitalPaths.push(orbitalPath);
-    });
-    
-    // Create a GSAP timeline for each word
-    wordsRef.current.forEach((word, index) => {
-      if (!word) return;
-      
-      const wordData = orbitalWords[index];
-      const orbitIndex = wordData.orbit;
-      const orbit = orbits[orbitIndex];
-      const startAngle = wordData.angle;
-      const isEmphasized = wordData.emphasis;
-      
-      // Position at the right starting angle on the circle with specific styling
-      gsap.set(word, {
-        opacity: 0,
-        fontWeight: isEmphasized ? 700 : 500,
-        fontSize: isEmphasized ? "1.25rem" : "1rem",
-        letterSpacing: isEmphasized ? "0.05em" : "normal",
-      });
-      
-      // Animate each word along its orbit path
-      gsap.to(word, {
-        duration: 40 / orbit.speed, // Slower for a more graceful motion
-        ease: "linear",
-        repeat: -1,
-        motionPath: {
-          path: `#orbit-path-${orbitIndex}`,
-          align: `#orbit-path-${orbitIndex}`,
-          alignOrigin: [0.5, 0.5],
-          start: startAngle / 360,
-          end: startAngle / 360 + 1,
-          autoRotate: false,
-        },
-        opacity: 1,
-        onUpdate: function() {
-          // Get the current position of the word
-          const progress = this.progress();
-          const currentAngle = (startAngle / 360 + progress) % 1; // Normalized 0-1
-          
-          // When the word is "behind" the planet (left side), reduce opacity
-          const isBackHalf = currentAngle > 0.25 && currentAngle < 0.75;
-          
-          // Gradient opacity based on position (completely invisible when directly behind)
-          let opacity = 1;
-          if (isBackHalf) {
-            // Calculate how "behind" the planet the word is (0.5 = directly behind)
-            const behindFactor = 1 - Math.abs(currentAngle - 0.5) * 4; // 0 at edges, 1 at center
-            opacity = 0.3 - (behindFactor * 0.3); // Minimum 0 opacity when directly behind
-          }
-          
-          // Scale and opacity effects
-          gsap.set(word, { 
-            opacity, 
-            scale: isBackHalf ? 0.8 : 1,
-            filter: isBackHalf ? "blur(1px)" : "none"
-          });
-        }
-      });
-    });
-    
-    // Cleanup
-    return () => {
-      orbitalPaths.forEach(path => path.remove());
-      gsap.killTweensOf(wordsRef.current);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
     };
+    
+    checkMobile(); // Initial check
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
   
-  return (
-    <SectionWrapper id="orbit" className="h-[700px] relative py-20 mb-20 overflow-hidden">
-      <div ref={containerRef} className="container mx-auto relative h-full">
-        {/* Background glow */}
-        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-purple-900/10 to-blue-800/5 blur-[100px] z-0"></div>
+  // Helper function to map a value from one range to another
+  function mapRange(value: number, inMin: number, inMax: number, outMin: number, outMax: number): number {
+    return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+  }
+  
+  // Set up the animation for revolving words and planet pulse
+  useEffect(() => {
+    // Initial animation state
+    let frame = 0;
+    
+    // Set up planet pulse animation
+    const planet = document.querySelector('.planet-container');
+    let planetPulseSize = 1.0;
+    let pulseDirection = 0.0005;
+    
+    // Animation function for text revolution and planet pulse
+    const animateElements = () => {
+      // Get all orbiting words
+      const words = document.querySelectorAll('.orbital-word');
+      if (words.length === 0 || !planet) {
+        animationRef.current = requestAnimationFrame(animateElements);
+        return;
+      }
       
-        {/* SVG for orbital paths */}
-        <svg 
-          ref={svgRef} 
-          className="absolute inset-0 w-full h-full z-0"
-          xmlns="http://www.w3.org/2000/svg"
-        ></svg>
+      // Animate planet pulsing
+      planetPulseSize += pulseDirection;
+      if (planetPulseSize > 1.03) {
+        pulseDirection = -0.0005;
+      } else if (planetPulseSize < 0.97) {
+        pulseDirection = 0.0005;
+      }
+      
+      // Apply planet pulsing effect
+      (planet as HTMLElement).style.transform = `scale(${planetPulseSize})`;
+      
+      words.forEach((word, index) => {
+        // Calculate angle - distribute words evenly around orbit
+        const baseAngle = (index / words.length) * 2 * Math.PI;
+        const angle = baseAngle + (frame * 0.0003); // Even slower rotation for smoother appearance
         
-        {/* Planet */}
-        <div 
-          ref={planetRef}
-          className="absolute right-0 top-1/2 transform -translate-y-1/2 w-[380px] h-[380px] z-20 animate-pulse-slow"
-        >
+        // Calculate coordinates in 3D space
+        const x = Math.cos(angle);
+        const z = Math.sin(angle);
+        
+        // Scale varies with Z position (distance from viewer)
+        const scale = mapRange(z, -1, 1, 1.2, 0.8);
+        
+        // Calculate screen position
+        const screenX = 50 + x * 40; // Horizontal position
+        const screenY = 50 + z * 15; // Vertical position varies with depth
+                
+        // Apply position and style to the word element
+        const wordEl = word as HTMLElement;
+        
+        // Make animation smoother with CSS transitions
+        if (!wordEl.style.transition) {
+          // Set this only once to avoid overriding during animation
+          wordEl.style.transition = 'left 0.4s ease-out, top 0.4s ease-out, transform 0.3s ease-out, opacity 0.5s ease, filter 0.5s ease';
+        }
+        
+        wordEl.style.left = `${screenX}%`;
+        wordEl.style.top = `${screenY}%`;
+        wordEl.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        
+        // Words in front are more visible, words behind are more hidden
+        if (z < 0) {
+          // Text is in FRONT half - fully visible, above rings
+          wordEl.style.opacity = '1';
+          wordEl.style.filter = 'none';
+          wordEl.style.zIndex = '35'; // Above front rings
+          wordEl.style.fontSize = isMobile ? '1.5rem' : '2.2rem';
+        } else {
+          // Text is in BACK half - less visible, behind rings
+          wordEl.style.opacity = '0.15';
+          wordEl.style.filter = `blur(${z * 2}px)`;
+          wordEl.style.zIndex = '5'; // Below back rings
+          wordEl.style.fontSize = isMobile ? '1.2rem' : '1.7rem';
+        }
+      });
+      
+      // Continue animation
+      frame++;
+      animationRef.current = requestAnimationFrame(animateElements);
+    };
+    
+    // Start animation
+    animationRef.current = requestAnimationFrame(animateElements);
+    
+    // Clean up on unmount
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isMobile]);
+  
+  // Responsive sizing
+  const planetSize = isMobile ? "w-[250px] h-[250px]" : "w-[400px] h-[400px]";
+  const sectionHeight = isMobile ? "h-[550px]" : "h-[800px]";
+  
+  // Calculate ring sizes for responsiveness - now even wider for bigger visual impact
+  const ringWidths = {
+    // Rings behind the planet
+    behind1: isMobile ? "w-[600px]" : "w-[1200px]",
+    behind2: isMobile ? "w-[550px]" : "w-[1100px]",
+    // Rings in front of the planet
+    front1: isMobile ? "w-[650px]" : "w-[1300px]",
+    front2: isMobile ? "w-[700px]" : "w-[1400px]",
+    front3: isMobile ? "w-[750px]" : "w-[1500px]",
+  };
+  
+  // Calculate ring heights (flattened for perspective)
+  const ringHeights = {
+    behind1: isMobile ? "h-[150px]" : "h-[300px]",
+    behind2: isMobile ? "h-[140px]" : "h-[280px]",
+    front1: isMobile ? "h-[160px]" : "h-[320px]",
+    front2: isMobile ? "h-[170px]" : "h-[340px]",
+    front3: isMobile ? "h-[180px]" : "h-[360px]",
+  };
+  
+  return (
+    <SectionWrapper id="orbit" className={`${sectionHeight} relative py-8 mb-20 overflow-hidden bg-black`}>
+      <div ref={containerRef} className="container mx-auto relative h-full flex items-center justify-center">
+        {/* Background glow */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 to-blue-800/5 blur-[100px] z-0"></div>
+        
+        {/* Rings that go BEHIND the planet */}
+        <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 5 }}>
+          {/* Use clip-path to show only the BOTTOM half of these rings */}
+          <div className={`absolute ${ringWidths.behind1} ${ringHeights.behind1} rounded-full`} 
+              style={{ 
+                transform: 'rotateX(75deg) rotateZ(-6deg)',
+                border: '3px solid rgba(180, 120, 255, 0.7)',
+                borderRadius: '50%',
+                boxShadow: '0 0 20px rgba(180, 120, 255, 0.5)',
+                clipPath: 'polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%)', /* Only show bottom half */
+              }}>
+          </div>
+          
+          <div className={`absolute ${ringWidths.behind2} ${ringHeights.behind2} rounded-full`} 
+              style={{ 
+                transform: 'rotateX(75deg) rotateZ(-6deg)',
+                border: '2px solid rgba(150, 160, 255, 0.8)',
+                borderRadius: '50%',
+                boxShadow: '0 0 15px rgba(150, 160, 255, 0.6)',
+                clipPath: 'polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%)', /* Only show bottom half */
+              }}>
+          </div>
+        </div>
+        
+        {/* Orbiting words - positioned separately so they can be layered properly */}
+        <div className="absolute inset-0">
+          {orbitalWords.map((word, index) => (
+            <div
+              key={word}
+              className="orbital-word absolute text-white font-bold whitespace-nowrap"
+              style={{
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                textShadow: '0 0 15px rgba(150, 100, 255, 0.8)'
+              }}
+            >
+              {word}
+            </div>
+          ))}
+        </div>
+        
+        {/* MIDDLE: The planet - positioned between back and front rings */}
+        <div className={`${planetSize} relative planet-container`} style={{ zIndex: 20, transition: 'transform 0.5s ease-in-out' }}>
           <div className="w-full h-full rounded-full overflow-hidden relative">
             {/* Glow effects */}
-            <div className="absolute -inset-8 rounded-full bg-gradient-to-r from-indigo-600/20 to-purple-600/10 blur-[50px] opacity-60"></div>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/30 to-purple-700/40 blur-[30px] opacity-80"></div>
+            <div className="absolute -inset-8 rounded-full bg-gradient-to-r from-indigo-600/40 to-purple-600/40 blur-[80px] opacity-90"></div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/50 to-purple-700/60 blur-[30px] opacity-90"></div>
             
             {/* Planet image */}
             <img 
@@ -171,30 +206,41 @@ export function OrbitalText() {
               alt="Blue and purple planet with dynamic swirls" 
               className="w-full h-full object-cover relative z-10 rounded-full"
             />
-            
-            {/* Ring effect - matching the mockup's look */}
-            <div className="absolute -inset-8 rounded-full border-[6px] border-transparent opacity-40 blur-[2px] z-20"
-                style={{ 
-                  background: "transparent",
-                  backgroundImage: "linear-gradient(135deg, rgba(138, 180, 255, 0.2), rgba(255, 161, 245, 0.1))",
-                  borderRadius: "50%",
-                  transform: "rotate(-30deg) scale(1.05)",
-                  clipPath: "ellipse(50% 50% at 50% 50%)"
-                }}></div>
           </div>
         </div>
         
-        {/* Orbital words */}
-        <div className="absolute inset-0 z-10">
-          {orbitalWords.map((word, index) => (
-            <span
-              key={word.text}
-              ref={(el) => (wordsRef.current[index] = el)}
-              className={`absolute whitespace-nowrap ${word.emphasis ? 'text-white' : 'text-gray-300'}`}
-            >
-              {word.text}
-            </span>
-          ))}
+        {/* Rings that go IN FRONT of the planet */}
+        <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 30 }}>
+          {/* Use clip-path to show only the TOP half of these rings */}
+          <div className={`absolute ${ringWidths.front1} ${ringHeights.front1} rounded-full`} 
+              style={{ 
+                transform: 'rotateX(75deg) rotateZ(-6deg)',
+                border: '3px solid rgba(180, 120, 255, 0.8)',
+                borderRadius: '50%',
+                boxShadow: '0 0 25px rgba(180, 120, 255, 0.6)',
+                clipPath: 'polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%)', /* Only show top half */
+              }}>
+          </div>
+          
+          <div className={`absolute ${ringWidths.front2} ${ringHeights.front2} rounded-full`} 
+              style={{ 
+                transform: 'rotateX(75deg) rotateZ(-6deg)',
+                border: '2px solid rgba(150, 160, 255, 0.7)',
+                borderRadius: '50%',
+                boxShadow: '0 0 20px rgba(150, 160, 255, 0.5)',
+                clipPath: 'polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%)', /* Only show top half */
+              }}>
+          </div>
+          
+          <div className={`absolute ${ringWidths.front3} ${ringHeights.front3} rounded-full`} 
+              style={{ 
+                transform: 'rotateX(75deg) rotateZ(-6deg)',
+                border: '3px solid rgba(180, 120, 255, 0.6)',
+                borderRadius: '50%',
+                boxShadow: '0 0 30px rgba(180, 120, 255, 0.5)',
+                clipPath: 'polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%)', /* Only show top half */
+              }}>
+          </div>
         </div>
       </div>
     </SectionWrapper>
